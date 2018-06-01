@@ -1,29 +1,37 @@
 package modeloenviamelo;
 
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 
-public class Parada {
+class Parada {
     
     private final LocalTime horaPrevistaLlegada;
+    private final Almacen almacen;
 
-    public Parada(LocalTime horaPrevistaLlegada) {
+    Parada(LocalTime horaPrevistaLlegada, Almacen almacen) {
         this.horaPrevistaLlegada = horaPrevistaLlegada;
-    }
-    
-    Parada crear(LocalTime horaPrevistaLlegada, Almacen almacen) {
-        return null;
+        this.almacen = almacen;
     }
     
     int obtenerDistrito() {
-        return -1;
+        return almacen.obtenerDistrito();
     }
     
     Almacen obtenerAlmacen() {
-        return null;
+        return almacen;
     }
     
     List<String> obtenerDatos() {
-        return null;
+        return Arrays.asList(horaPrevistaLlegada.toString(), Integer.toString(obtenerDistrito()), obtenerAlmacen().obtenerDireccion());
+    }
+    
+    @Override
+    public boolean equals(Object otra) {
+        if (this == otra) return true;
+        if (!(otra instanceof Parada)) return false;
+        
+        Parada p = (Parada) otra;
+        return (p.horaPrevistaLlegada.equals(horaPrevistaLlegada) && p.almacen.equals(almacen));
     }
 }

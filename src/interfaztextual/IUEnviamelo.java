@@ -1,17 +1,9 @@
-//Terminar de implementar el menú con las opciones que faltan
-// Para mejorar:
-// Podési hacer vuestros propios diseños de interfaz, esta es la interfaz mínima que tenéis que entregar
-// Podeís usar la estructura de Vista/Controlador textual que os dejamos en PDOO
 package interfaztextual;
 
 import java.time.LocalTime;
 import java.util.Scanner;
 import modeloenviamelo.Enviamelo;
 
-/**
- *
- * @author aanaya
- */
 public class IUEnviamelo {
 
     /**

@@ -1,9 +1,8 @@
 package modeloenviamelo;
 
-/**
- *
- * @author aanaya
- */
+import java.util.ArrayList;
+import java.util.List;
+
 class Furgoneta {
 
     private final String matricula;
@@ -25,10 +24,22 @@ class Furgoneta {
         this.almacen = almacen;
     }
     
-    String[] obtenerDatos() {
-        String[] datos = new String[2];
-        datos[0] = matricula;
-        datos[1] = Double.toString(pesoMaximo);
+    Almacen obtenerLocalizacion() {
+        return almacen;
+    }
+    
+    String obtenerMatricula() {
+        return matricula;
+    }
+    
+    List<String> obtenerDatos() {
+        List<String> datos = new ArrayList<>();
+        datos.add(matricula);
+        datos.add(Double.toString(pesoMaximo));
         return datos;
+    }
+    
+    boolean isDisponible() {
+        return disponibilidad;
     }
 }
