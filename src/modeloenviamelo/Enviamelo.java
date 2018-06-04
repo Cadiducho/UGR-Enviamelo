@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Enviamelo {
@@ -42,21 +43,36 @@ public class Enviamelo {
         furgonetas.add(new Furgoneta("3335 DCD", 5000, a4));
     }
     
-    public void añadirParadaRutaPlantilla(int idRutaPlantilla, LocalTime horaPrevistaLlegada, int idAlmacen) {
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        Almacen almacen = buscarAlmacen(idAlmacen);
+    public void añadirParadaRutaPlantilla(int idRutaPlantilla, LocalTime horaPrevistaLlegada, int idAlmacen) throws EnviameloException {
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
         
-        rutaPlantilla.añadirParada(horaPrevistaLlegada, almacen);
+        Optional<Almacen> almacen = buscarAlmacen(idAlmacen);
+        if (!almacen.isPresent()) {
+            throw new EnviameloException("No se ha encontrado el Almacen identificado por " + idAlmacen);
+        }
+        
+        rutaPlantilla.get().añadirParada(horaPrevistaLlegada, almacen.get());
     }
     
     public void asignarRutaFurgoneta(int idRutaPlantilla, LocalDate idRutaDiaria, String idFurgoneta) throws EnviameloException {
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        Furgoneta furgoneta = buscarFurgoneta(idFurgoneta);
-        if (!furgoneta.isDisponible()) {
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        Optional<Furgoneta> furgoneta = buscarFurgoneta(idFurgoneta);
+        if (!furgoneta.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la Furgoneta identificada por " + idFurgoneta);
+        }
+        
+        if (!furgoneta.get().isDisponible()) {
             throw new EnviameloException("Esa furgoneta no está disponible");
         }
         
-        rutaPlantilla.asiganarRutaFurgoneta(idRutaDiaria, furgoneta);
+        rutaPlantilla.get().asiganarRutaFurgoneta(idRutaDiaria, furgoneta.get());
     }
     
     public int crearRutaPlantilla(int numeroRuta, LocalTime horaPrevistaInicio) throws EnviameloException {
@@ -73,51 +89,71 @@ public class Enviamelo {
         if (fecha.isAfter(LocalDate.now())) {
             throw new EnviameloException("La fecha debe ser igual o posterior a la fecha actual");
         }
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        rutaPlantilla.generarRutaDiaria(fecha);
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        rutaPlantilla.get().generarRutaDiaria(fecha);
     }
     
-    public List<String> obtenerFurgonetasRuta(int idRutaPlantilla) {
+    public List<String> obtenerFurgonetasRuta(int idRutaPlantilla) throws EnviameloException {
         List<String> datos = new ArrayList<>();
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        int distrito = rutaPlantilla.obtenerDistritoPrimeraParada();
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        int distrito = rutaPlantilla.get().obtenerDistritoPrimeraParada();
         List<Furgoneta> furgonetasDisponibles = seleccionarFurgonetasDisponibles(distrito);
         furgonetasDisponibles.forEach(furgo -> 
                 datos.add(furgo.obtenerDatos().stream().map(Object::toString).collect(Collectors.joining(","))));
         return datos;
     }
     
-    public void registrarConclusionRuta(int idRutaPlantilla) {
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        rutaPlantilla.registrarConclusionRuta();
+    public void registrarConclusionRuta(int idRutaPlantilla) throws EnviameloException {
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        rutaPlantilla.get().registrarConclusionRuta();
     }
     
-    public int registrarInicioRuta(int idRutaPlantilla) {
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        rutaPlantilla.registrarInicioRuta();
-        return rutaPlantilla.obtenerNumeroParadas();
+    public int registrarInicioRuta(int idRutaPlantilla) throws EnviameloException {
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        rutaPlantilla.get().registrarInicioRuta();
+        return rutaPlantilla.get().obtenerNumeroParadas();
     }
 
-    public List<String> registrarParadaCompletada(int idRutaPlantilla) {
-        RutaPlantilla rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
-        List<String> datosSiguienteParada = rutaPlantilla.registrarParadaCompleta();
+    public List<String> registrarParadaCompletada(int idRutaPlantilla) throws EnviameloException {
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        List<String> datosSiguienteParada = rutaPlantilla.get().registrarParadaCompleta();
         return datosSiguienteParada;
     }
     
-    private Almacen buscarAlmacen(int idAlmacen) {
-        return almacenes.stream().filter(a -> a.obtenerDistrito().equals(idAlmacen)).findFirst().orElse(null);
+    private Optional<Almacen> buscarAlmacen(int idAlmacen) {
+        return almacenes.stream().filter(a -> a.obtenerDistrito().equals(idAlmacen)).findFirst();
     }
 
-    private Furgoneta buscarFurgoneta(String idFurgoneta) {
-        return furgonetas.stream().filter(f -> f.obtenerMatricula().equalsIgnoreCase(idFurgoneta)).findFirst().orElse(null);
+    private Optional<Furgoneta> buscarFurgoneta(String idFurgoneta) {
+        return furgonetas.stream().filter(f -> f.obtenerMatricula().equalsIgnoreCase(idFurgoneta)).findFirst();
     }
     
     private boolean existeRutaPlantilla(int numeroRP) {
         return false;
     }
 
-    private RutaPlantilla buscarRutaPlantilla(int idRutaPlantilla) {
-        return rutasPlantilla.stream().filter(rp -> rp.obtenerNumeroRuta() == idRutaPlantilla).findFirst().orElse(null);
+    private Optional<RutaPlantilla> buscarRutaPlantilla(int idRutaPlantilla) {
+        return rutasPlantilla.stream().filter(rp -> rp.obtenerNumeroRuta() == idRutaPlantilla).findFirst();
     }
     
     private boolean existeRutaPlantilla(int numeroRP) {

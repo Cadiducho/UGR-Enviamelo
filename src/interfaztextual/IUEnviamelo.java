@@ -3,6 +3,7 @@ package interfaztextual;
 import java.time.LocalTime;
 import java.util.Scanner;
 import modeloenviamelo.Enviamelo;
+import modeloenviamelo.EnviameloException;
 
 public class IUEnviamelo {
 
@@ -26,16 +27,20 @@ public class IUEnviamelo {
             System.out.println(muyRapido.obtenerRutasActivas()); // Este método de obtener rutas activas no está diseñado
             numeroRuta = Integer.parseInt(in.nextLine());
 
-            int numeroParadas = muyRapido.registrarInicioRuta(numeroRuta);
-            for (int i = 1; i <= numeroParadas; i++) {
-                System.out.println("pulsa cualquier tecla para indicar parada completada");
+            try {
+                int numeroParadas = muyRapido.registrarInicioRuta(numeroRuta);
+                for (int i = 1; i <= numeroParadas; i++) {
+                    System.out.println("pulsa cualquier tecla para indicar parada completada");
+                    in.nextLine();
+                    System.out.println(muyRapido.registrarParadaCompletada(numeroRuta));
+                    System.out.println("Vamos a la siguiente parada");
+                }
+                System.out.println("la ruta: " + numeroRuta + " ha finalizado , pulsa cualquier tecla para indicar fin de ruta");
                 in.nextLine();
-                System.out.println(muyRapido.registrarParadaCompletada(numeroRuta));
-                System.out.println("Vamos a la siguiente parada");
+                muyRapido.registrarConclusionRuta(numeroRuta);
+            } catch (EnviameloException ex) {
+                System.out.println(ex.getMessage());
             }
-            System.out.println("la ruta: " + numeroRuta + " ha finalizado , pulsa cualquier tecla para indicar fin de ruta");
-            in.nextLine();
-            muyRapido.registrarConclusionRuta(numeroRuta);
 
         } else {// opciones del oficinista
             do {
@@ -93,7 +98,7 @@ public class IUEnviamelo {
                             System.out.println("OPCION NO VÁLIDA");
                             break;
                     }
-                } catch (Exception ex) { // captura de la excepción
+                } catch (NumberFormatException | EnviameloException ex) { // captura de la excepción
                     System.err.println("se ha producido la siguiente excepcion: " + ex.getMessage());
                 }
             } while (opcion != 0);
