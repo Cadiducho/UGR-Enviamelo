@@ -147,10 +147,6 @@ public class Enviamelo {
     private Optional<Furgoneta> buscarFurgoneta(String idFurgoneta) {
         return furgonetas.stream().filter(f -> f.obtenerMatricula().equalsIgnoreCase(idFurgoneta)).findFirst();
     }
-    
-    private boolean existeRutaPlantilla(int numeroRP) {
-        return false;
-    }
 
     private Optional<RutaPlantilla> buscarRutaPlantilla(int idRutaPlantilla) {
         return rutasPlantilla.stream().filter(rp -> rp.obtenerNumeroRuta() == idRutaPlantilla).findFirst();
