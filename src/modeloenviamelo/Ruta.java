@@ -2,19 +2,23 @@ package modeloenviamelo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 class Ruta {
     
     private LocalDate fechaRealizacion;
     private LocalTime horaInicio;
     private Parada actual;
-    private List<Furgoneta> furgonetasCubriendo;
-    private List<ParadaEnRuta> paradas;
+    private final List<Furgoneta> furgonetasCubriendo;
+    private final List<ParadaEnRuta> paradas;
     
     Ruta(LocalDate fecha) {
         this.fechaRealizacion = fecha;
+        this.paradas = new ArrayList<>();
+        this.furgonetasCubriendo = new ArrayList<>();
     }
     
     void asignarFurgoneta(Furgoneta furgoneta) {
@@ -42,9 +46,12 @@ class Ruta {
         modificarHoraInicio(LocalTime.now());
     }
     
-    List<String> registrarParadaCompleta() {
-        ParadaEnRuta paradaEnRuta = obtenerParadaEnRuta(actual);
-        paradaEnRuta.modificarHoraLlegada(LocalTime.now());
+    List<String> registrarParadaCompleta() throws EnviameloException {
+        Optional<ParadaEnRuta> paradaEnRuta = obtenerParadaEnRuta(actual);
+        if (!paradaEnRuta.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la ParadaEnRuta identificada por " + actual);
+        }
+        paradaEnRuta.get().modificarHoraLlegada(LocalTime.now());
         Parada parada = siguienteParada();
         modificarParadaActual(parada);
         List<String> datosSiguienteParada = actual.obtenerDatos();
@@ -67,8 +74,8 @@ class Ruta {
         return paradas;
     }
     
-    ParadaEnRuta obtenerParadaEnRuta(Parada paradaActual) {
-        return paradas.stream().filter(pr -> pr.getParada().equals(paradaActual)).findFirst().orElse(null);
+    Optional<ParadaEnRuta> obtenerParadaEnRuta(Parada paradaActual) {
+        return paradas.stream().filter(pr -> pr.getParada().equals(paradaActual)).findFirst();
     }
     
     Parada siguienteParada() {

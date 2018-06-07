@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class RutaPlantilla {
     
@@ -20,9 +21,12 @@ class RutaPlantilla {
         this.rutas = new ArrayList<>();
     }
     
-    void asiganarRutaFurgoneta(LocalDate idRutaDiaria, Furgoneta furgoneta) {
-        Ruta ruta = buscarRuta(idRutaDiaria);
-        ruta.asignarFurgoneta(furgoneta);
+    void asiganarRutaFurgoneta(LocalDate idRutaDiaria, Furgoneta furgoneta) throws EnviameloException {
+        Optional<Ruta> ruta = buscarRuta(LocalDate.now());
+        if (!ruta.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la ParadaEnRuta identificada por " + LocalDate.now());
+        }
+        ruta.get().asignarFurgoneta(furgoneta);
     }
 
     void añadirParada(LocalTime horaPrevistaLlegada, Almacen almacen) {
@@ -52,24 +56,33 @@ class RutaPlantilla {
         return numeroRuta;
     }
     
-    void registrarConclusionRuta() {
-        Ruta ruta = buscarRuta(LocalDate.now());
-        ruta.registrarConclusion();
+    void registrarConclusionRuta() throws EnviameloException {
+        Optional<Ruta> ruta = buscarRuta(LocalDate.now());
+        if (!ruta.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la ParadaEnRuta identificada por " + LocalDate.now());
+        }
+        ruta.get().registrarConclusion();
     }
 
-    void registrarInicioRuta() {
-        Ruta ruta = buscarRuta(LocalDate.now());
-        ruta.registrarInicio();
+    void registrarInicioRuta() throws EnviameloException {
+        Optional<Ruta> ruta = buscarRuta(LocalDate.now());
+        if (!ruta.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la ParadaEnRuta identificada por " + LocalDate.now());
+        }
+        ruta.get().registrarInicio();
     }
     
-    List<String> registrarParadaCompleta() {
-        Ruta ruta = buscarRuta(LocalDate.now());
-        List<String> datosSiguienteParada = ruta.registrarParadaCompleta();
+    List<String> registrarParadaCompleta() throws EnviameloException {
+        Optional<Ruta> ruta = buscarRuta(LocalDate.now());
+        if (!ruta.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la ParadaEnRuta identificada por " + LocalDate.now());
+        }
+        List<String> datosSiguienteParada = ruta.get().registrarParadaCompleta();
         return datosSiguienteParada;
     }
 
-    private Ruta buscarRuta(LocalDate idRutaDiaria) {
-        return rutas.stream().filter(r -> r.obtenerFechaRealizacion().equals(idRutaDiaria)).findFirst().orElse(null);
+    private Optional<Ruta> buscarRuta(LocalDate idRutaDiaria) {
+        return rutas.stream().filter(r -> r.obtenerFechaRealizacion().equals(idRutaDiaria)).findFirst();
     }
     
     boolean isActiva() {
