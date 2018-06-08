@@ -3,7 +3,7 @@ package modeloenviamelo;
 import java.util.ArrayList;
 import java.util.List;
 
-class Furgoneta {
+public class Furgoneta {
 
     private final String matricula;
     private final double pesoMaximo;
@@ -35,7 +35,7 @@ class Furgoneta {
     List<String> obtenerDatos() {
         List<String> datos = new ArrayList<>();
         datos.add(matricula);
-        datos.add(Double.toString(pesoMaximo));
+        datos.add(Double.toString(pesoMaximo) + "kg");
         return datos;
     }
     

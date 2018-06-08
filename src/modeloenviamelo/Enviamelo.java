@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,20 @@ public class Enviamelo {
         furgonetas.add(new Furgoneta("4545 HFG", 1000, a3));
         furgonetas.add(new Furgoneta("2885 JHG", 5000, a4));
         furgonetas.add(new Furgoneta("3335 DCD", 5000, a4));
+        
+        /* TEST */
+        try {
+            System.out.println("Añadiendo datos de prueba");
+            crearRutaPlantilla(1,  LocalTime.of(20, 00));
+            añadirParadaRutaPlantilla(1, LocalTime.of(20, 30), a1.obtenerDistrito());
+            añadirParadaRutaPlantilla(1, LocalTime.of(22, 00), a2.obtenerDistrito());
+            
+            generarRutaDiaria(LocalDate.now(), 1);
+            asignarRutaFurgoneta(1, LocalDate.now(), furgonetas.get(0).obtenerMatricula());
+        } catch (EnviameloException ex) {
+            System.out.println(ex.getMessage());
+        } 
+        
     }
     
     public void añadirParadaRutaPlantilla(int idRutaPlantilla, LocalTime horaPrevistaLlegada, int idAlmacen) throws EnviameloException {
@@ -86,7 +101,7 @@ public class Enviamelo {
     }
     
     public void generarRutaDiaria(LocalDate fecha, int idRutaPlantilla) throws EnviameloException {
-        if (fecha.isAfter(LocalDate.now())) {
+        if (fecha.isBefore(LocalDate.now())) {
             throw new EnviameloException("La fecha debe ser igual o posterior a la fecha actual");
         }
         Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
@@ -107,7 +122,7 @@ public class Enviamelo {
         int distrito = rutaPlantilla.get().obtenerDistritoPrimeraParada();
         List<Furgoneta> furgonetasDisponibles = seleccionarFurgonetasDisponibles(distrito);
         furgonetasDisponibles.forEach(furgo -> 
-                datos.add(furgo.obtenerDatos().stream().map(Object::toString).collect(Collectors.joining(","))));
+                datos.add(furgo.obtenerDatos().stream().map(Object::toString).collect(Collectors.joining("-> "))));
         return datos;
     }
     
@@ -148,7 +163,7 @@ public class Enviamelo {
         return furgonetas.stream().filter(f -> f.obtenerMatricula().equalsIgnoreCase(idFurgoneta)).findFirst();
     }
 
-    private Optional<RutaPlantilla> buscarRutaPlantilla(int idRutaPlantilla) {
+    public Optional<RutaPlantilla> buscarRutaPlantilla(int idRutaPlantilla) {
         return rutasPlantilla.stream().filter(rp -> rp.obtenerNumeroRuta() == idRutaPlantilla).findFirst();
     }
     
@@ -160,11 +175,20 @@ public class Enviamelo {
         return furgonetas.stream().filter(f -> f.obtenerLocalizacion().obtenerDistrito() == distrito).collect(Collectors.toList());
     }
 
-    /**
-     * Proporciona todos los numeros de ruta plantilla que estén activas 
-     * @return lista de ids
-     */
     public List<Integer> obtenerRutasActivas() {
         return rutasPlantilla.stream().filter(RutaPlantilla::isActiva).map(RutaPlantilla::obtenerNumeroRuta).collect(Collectors.toList());
+    }
+    
+    public List<LocalDate> obtenerRutasDiarias(int idRutaPlantilla) throws EnviameloException {
+        Optional<RutaPlantilla> rutaPlantilla = buscarRutaPlantilla(idRutaPlantilla);
+        if (!rutaPlantilla.isPresent()) {
+            throw new EnviameloException("No se ha encontrado la RutaPlantilla identificada por " + idRutaPlantilla);
+        }
+        
+        return rutaPlantilla.get().obtenerRutasObtenerDiarias();
+    }
+    
+    public Map<String, Integer> obtenerAlmacenes() {
+        return almacenes.stream().collect(Collectors.toMap(a -> a.obtenerDireccion(), a -> a.obtenerDistrito()));
     }
 }

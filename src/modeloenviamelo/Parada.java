@@ -4,7 +4,7 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
-class Parada {
+public class Parada {
     
     private final LocalTime horaPrevistaLlegada;
     private final Almacen almacen;

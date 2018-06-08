@@ -5,8 +5,9 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-class RutaPlantilla {
+public class RutaPlantilla {
     
     private final int numeroRuta;
     private final LocalTime horaPrevistaInicio;
@@ -22,7 +23,7 @@ class RutaPlantilla {
     }
     
     void asiganarRutaFurgoneta(LocalDate idRutaDiaria, Furgoneta furgoneta) throws EnviameloException {
-        Optional<Ruta> ruta = buscarRuta(LocalDate.now());
+        Optional<Ruta> ruta = buscarRuta(idRutaDiaria);
         if (!ruta.isPresent()) {
             throw new EnviameloException("No se ha encontrado la ParadaEnRuta identificada por " + LocalDate.now());
         }
@@ -79,6 +80,10 @@ class RutaPlantilla {
         }
         List<String> datosSiguienteParada = ruta.get().registrarParadaCompleta();
         return datosSiguienteParada;
+    }
+    
+    public List<LocalDate> obtenerRutasObtenerDiarias() {
+        return rutas.stream().map(Ruta::obtenerFechaRealizacion).collect(Collectors.toList());
     }
 
     private Optional<Ruta> buscarRuta(LocalDate idRutaDiaria) {

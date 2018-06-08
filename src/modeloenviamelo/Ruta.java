@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-class Ruta {
+public class Ruta {
     
     private LocalDate fechaRealizacion;
     private LocalTime horaInicio;
@@ -54,7 +54,7 @@ class Ruta {
         paradaEnRuta.get().modificarHoraLlegada(LocalTime.now());
         Parada parada = siguienteParada();
         modificarParadaActual(parada);
-        List<String> datosSiguienteParada = actual.obtenerDatos();
+        List<String> datosSiguienteParada = (parada == null ? new ArrayList<>() : parada.obtenerDatos());
         return datosSiguienteParada;
     }
     

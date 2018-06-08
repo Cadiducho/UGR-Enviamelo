@@ -1,6 +1,6 @@
 package modeloenviamelo;
 
-class Almacen {
+public class Almacen {
 
     private final Integer distrito;
     private final String direccion;

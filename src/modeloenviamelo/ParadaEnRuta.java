@@ -1,7 +1,6 @@
 package modeloenviamelo;
 
 import java.time.LocalTime;
-import java.util.Objects;
 
 public class ParadaEnRuta {
 
